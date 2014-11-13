@@ -1,0 +1,102 @@
+<!html>
+<html>
+<head>
+    <script type="application/javascript">
+        const LIMIT = 20;
+
+        window.addEventListener("deviceorientation", function () {
+            processTilt(event.beta, event.gamma);
+        }, true);
+
+
+        function processTilt(x,y) {
+            if (x > LIMIT) {
+                fire('back');
+                px('back');
+            }
+            else if (x < -LIMIT) {
+                fire('front');
+                px('forward');
+            }
+            else {
+                px('stop');
+            }
+
+
+            if (y > LIMIT) {
+                fire('right');
+                py('right');
+            }
+            else if (y < -LIMIT) {
+                fire('left');
+                py('left');
+            }
+            else {
+                py('stop');
+            }
+        }
+
+        function px(val) {
+            document.querySelector('#x').innerText = val;
+        }
+
+        function py(val) {
+            document.querySelector('#y').innerText = val;
+        }
+
+        var blocked = false;
+        function fire(command) {
+            if (command !== 'land') {
+                if (blocked) return;
+
+                blocked = true;
+                setTimeout(function() {
+                    blocked = false;
+                }, 1000);
+            }
+            else {
+                blocked = true;
+                document.querySelector('body').innerHTML = '<div id=landed">LANDED</div>';
+            }
+
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'http://192.168.1.2:8000/' + command, true);
+            xhr.send();
+        }
+
+    </script>
+
+
+<style>
+    #x, #y {
+        margin-bottom: 100px;
+        font-size: 40px;
+    }
+
+    .control {
+        width: 90%;
+        height: 100px;
+        line-height: 100px;
+        margin-bottom: 100px;
+        font-size: 40px;
+    }
+
+    #landed {
+        font-size: 100px;
+        margin: 100px auto;
+    }
+</style>
+
+</head>
+
+<body>
+    <section>
+        <div id="x"></div>
+        <div id="y"></div>
+
+        <button class="control" onclick="fire('start')" id="up">Up</button>
+        <button class="control" id="down" onclick="fire('land')">Down</button>
+    </section>
+</body>
+</html>
