@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/lillesand/adventorous-nodecopter/issues"
   },
-  "homepage": "https://github.com/lillesand/adventorous-nodecopter"
+  "homepage": "https://github.com/lillesand/adventorous-nodecopter",
+  "dependencies": {
+    "express": "^4.10.2"
+  }
 }
