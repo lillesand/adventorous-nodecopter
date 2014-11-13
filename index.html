@@ -3,6 +3,7 @@
 <head>
     <script type="application/javascript">
         const LIMIT = 20;
+        const MAX_TILT = 45;
 
         window.addEventListener("deviceorientation", function () {
             processTilt(event.beta, event.gamma);
@@ -10,59 +11,68 @@
 
 
         function processTilt(x,y) {
-            if (x > LIMIT) {
-                fire('back');
-                px('back');
-            }
-            else if (x < -LIMIT) {
-                fire('front');
-                px('forward');
-            }
-            else {
-                px('stop');
+
+            console.log(x,y);
+
+            var left=0, right=0, forward=0, back=0;
+
+            x = maxTilt(x);
+            if (x > 0) {
+                back = x / MAX_TILT;
             }
 
-
-            if (y > LIMIT) {
-                fire('right');
-                py('right');
+            if (x < 0) {
+                forward = -x / MAX_TILT;
             }
-            else if (y < -LIMIT) {
-                fire('left');
-                py('left');
-            }
-            else {
-                py('stop');
-            }
-        }
 
-        function px(val) {
-            document.querySelector('#x').innerText = val;
-        }
+            y = maxTilt(y);
+            if (y > 0) {
+                right = y / MAX_TILT;
+            }
 
-        function py(val) {
-            document.querySelector('#y').innerText = val;
+            if (y < 0) {
+                left = -y / MAX_TILT;
+            }
+
+            document.querySelector('#x').innerHTML = 'left:' + left + "<br/>right:" + right + "<br/>forward:" + forward + "<br/>back:" + back;
+
+            fire('tilt/' + back + "/" + forward + "/" + left + "/" + right);
         }
 
         var blocked = false;
         function fire(command) {
-            if (command !== 'land') {
+            if (command === 'land') {
+                // Landing is the most important and final decision! Block forever and remove buttons
+                blocked = true;
+                document.querySelector('body').innerHTML = '<div id=landed">LANDED</div>';
+            }
+            else if (command === 'start') {
+                // Just go ahead, we'll never block start
+            }
+            else {
+                // Prevent too frequent calls
                 if (blocked) return;
 
                 blocked = true;
                 setTimeout(function() {
                     blocked = false;
-                }, 1000);
-            }
-            else {
-                blocked = true;
-                document.querySelector('body').innerHTML = '<div id=landed">LANDED</div>';
+                }, 10);
             }
 
 
             var xhr = new XMLHttpRequest();
             xhr.open('GET', 'http://192.168.1.2:8000/' + command, true);
             xhr.send();
+        }
+
+        function maxTilt(val) {
+            if (val > 0) {
+                return val > MAX_TILT ? MAX_TILT : val;
+            }
+            else {
+                return val < -MAX_TILT ? -MAX_TILT : val;
+            }
+
         }
 
     </script>
