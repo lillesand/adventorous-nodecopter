@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/lillesand/adventorous-nodecopter",
   "dependencies": {
+    "ar-drone": "^0.3.2",
     "express": "^4.10.2"
   }
 }
